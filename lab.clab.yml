@@ -1,4 +1,4 @@
-name: ospf-demo
+name: network-demo
 
 mgmt: # 管理用ネットワーク
   network: custom_mgm
