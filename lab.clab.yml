@@ -7,7 +7,7 @@ mgmt: # 管理用ネットワーク
 # Network A (192.168.1.0/24): srvA1 と rtA が所属
 # Link rtA--rt-asbr (10.0.0.0/30): 内部リンク
 # Link rt-asbr--rtB (10.0.0.4/30): 内部リンク
-# BGP Link rt-asbr--rt-external (10.0.1.0/30): AS境界リンク
+# BGP Link rt-asbr--rt-external (192.0.2.0/30): AS境界リンク (TEST-NET-1)
 # Network B (192.168.2.0/24): srvB1 と rtB が所属
 # External Network (203.0.113.0/24): srvExt と rt-external が所属
 
@@ -30,7 +30,7 @@ topology:
     rt-asbr:
       # eth1: 10.0.0.2/30 (rtA 側)
       # eth2: 10.0.0.5/30 (rtB 側)
-      # eth3: 10.0.1.1/30 (rt-external 側, BGP)
+      # eth3: 192.0.2.1/30 (rt-external 側, BGP)
       kind: linux
       image: frrouting/frr:latest
       binds:
@@ -51,7 +51,7 @@ topology:
         - ip addr add 192.168.2.10/24 dev eth1
         - ip route replace 0.0.0.0/0 via 192.168.2.1
     rt-external:
-      # eth1: 10.0.1.2/30 (rt-asbr 側, BGP)
+      # eth1: 192.0.2.2/30 (rt-asbr 側, BGP)
       # eth2: 203.0.113.1/24
       kind: linux
       image: frrouting/frr:latest

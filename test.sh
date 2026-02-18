@@ -35,8 +35,8 @@ run_test "clab-network-demo-rtB"   "10.0.0.5"       "rtB      -> rt-asbr  (10.0.
 
 echo ""
 echo "--- BGP リンク (eBGP AS65001<->AS65002) ---"
-run_test "clab-network-demo-rt-asbr" "10.0.1.2"     "rt-asbr  -> rt-ext   (10.0.1.2)      [BGP Link]"
-run_test "clab-network-demo-rt-external" "10.0.1.1" "rt-ext   -> rt-asbr  (10.0.1.1)      [BGP Link]"
+run_test "clab-network-demo-rt-asbr" "192.0.2.2"     "rt-asbr  -> rt-ext   (192.0.2.2)      [BGP Link]"
+run_test "clab-network-demo-rt-external" "192.0.2.1" "rt-ext   -> rt-asbr  (192.0.2.1)      [BGP Link]"
 
 echo ""
 echo "--- E2E (OSPF + BGP 経由) ---"
