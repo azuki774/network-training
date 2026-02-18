@@ -1,0 +1,21 @@
+---
+rtA:
+    username: 
+    password: 
+    platform: linux
+    hostname: 172.99.0.4
+rtB:
+    username: 
+    password: 
+    platform: linux
+    hostname: 172.99.0.5
+srvA1:
+    username: 
+    password: 
+    platform: linux
+    hostname: 172.99.0.2
+srvB1:
+    username: 
+    password: 
+    platform: linux
+    hostname: 172.99.0.3

@@ -1,0 +1,45 @@
+name: ospf-demo
+
+mgmt: # 管理用ネットワーク
+  network: custom_mgm
+  ipv4-subnet: 172.99.0.0/24
+
+# Network A (192.168.1.0/24): srv1 と r1 が所属
+# Intenal Network (10.0.0.0/30): r1 と r2 を繋ぐ専用道路
+# Network B (192.168.2.0/24): r2 と srv2 が所属
+
+topology:
+  nodes:
+    rtA:
+      # 10.0.0.1/30
+      # 192.168.1.1/24
+      kind: linux
+      image: frrouting/frr:latest
+      binds:
+      - rtA.conf:/etc/frr/frr.conf
+      - daemons:/etc/frr/daemons
+    srvA1:
+      kind: linux
+      image: alpine:latest
+      exec:
+        - ip addr add 192.168.1.10/24 dev eth1
+        - ip route replace 0.0.0.0/0 via 192.168.1.1
+    rtB:
+      # 10.0.0.2/30
+      # 192.168.2.1/24
+      kind: linux
+      image: frrouting/frr:latest
+      binds:
+      - rtB.conf:/etc/frr/frr.conf
+      - daemons:/etc/frr/daemons
+    srvB1:
+      kind: linux
+      image: alpine:latest
+      exec:
+        - ip addr add 192.168.2.10/24 dev eth1
+        - ip route replace 0.0.0.0/0 via 192.168.2.1
+
+  links:
+  - endpoints: ["rtA:eth1", "rtB:eth1"]
+  - endpoints: ["rtA:eth2", "srvA1:eth1"]
+  - endpoints: ["rtB:eth2", "srvB1:eth1"]
