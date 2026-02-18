@@ -4,15 +4,18 @@ mgmt: # 管理用ネットワーク
   network: custom_mgm
   ipv4-subnet: 172.99.0.0/24
 
-# Network A (192.168.1.0/24): srv1 と r1 が所属
-# Intenal Network (10.0.0.0/30): r1 と r2 を繋ぐ専用道路
-# Network B (192.168.2.0/24): r2 と srv2 が所属
+# Network A (192.168.1.0/24): srvA1 と rtA が所属
+# Link rtA--rt-asbr (10.0.0.0/30): 内部リンク
+# Link rt-asbr--rtB (10.0.0.4/30): 内部リンク
+# BGP Link rt-asbr--rt-external (10.0.1.0/30): AS境界リンク
+# Network B (192.168.2.0/24): srvB1 と rtB が所属
+# External Network (203.0.113.0/24): srvExt と rt-external が所属
 
 topology:
   nodes:
     rtA:
-      # 10.0.0.1/30
-      # 192.168.1.1/24
+      # eth1: 10.0.0.1/30
+      # eth2: 192.168.1.1/24
       kind: linux
       image: frrouting/frr:latest
       binds:
@@ -24,9 +27,18 @@ topology:
       exec:
         - ip addr add 192.168.1.10/24 dev eth1
         - ip route replace 0.0.0.0/0 via 192.168.1.1
+    rt-asbr:
+      # eth1: 10.0.0.2/30 (rtA 側)
+      # eth2: 10.0.0.5/30 (rtB 側)
+      # eth3: 10.0.1.1/30 (rt-external 側, BGP)
+      kind: linux
+      image: frrouting/frr:latest
+      binds:
+      - rt-asbr.conf:/etc/frr/frr.conf
+      - daemons:/etc/frr/daemons
     rtB:
-      # 10.0.0.2/30
-      # 192.168.2.1/24
+      # eth1: 10.0.0.6/30
+      # eth2: 192.168.2.1/24
       kind: linux
       image: frrouting/frr:latest
       binds:
@@ -38,8 +50,25 @@ topology:
       exec:
         - ip addr add 192.168.2.10/24 dev eth1
         - ip route replace 0.0.0.0/0 via 192.168.2.1
+    rt-external:
+      # eth1: 10.0.1.2/30 (rt-asbr 側, BGP)
+      # eth2: 203.0.113.1/24
+      kind: linux
+      image: frrouting/frr:latest
+      binds:
+      - rt-external.conf:/etc/frr/frr.conf
+      - daemons:/etc/frr/daemons
+    srvExt:
+      kind: linux
+      image: alpine:latest
+      exec:
+        - ip addr add 203.0.113.10/24 dev eth1
+        - ip route replace 0.0.0.0/0 via 203.0.113.1
 
   links:
-  - endpoints: ["rtA:eth1", "rtB:eth1"]
+  - endpoints: ["rtA:eth1", "rt-asbr:eth1"]
+  - endpoints: ["rt-asbr:eth2", "rtB:eth1"]
+  - endpoints: ["rt-asbr:eth3", "rt-external:eth1"]
   - endpoints: ["rtA:eth2", "srvA1:eth1"]
   - endpoints: ["rtB:eth2", "srvB1:eth1"]
+  - endpoints: ["rt-external:eth2", "srvExt:eth1"]
